@@ -12,7 +12,11 @@ os.makedirs("output/evaluation", exist_ok=True)
 # Load data
 data = pd.read_csv("dataset/winequality-red.csv", sep=";")
 
-X = data.drop("quality", axis=1)
+# Feature selection using correlation
+corr = data.corr()["quality"].abs()
+selected_features = corr[corr > 0.1].index.drop("quality")
+
+X = data[selected_features]
 y = data["quality"]
 
 # Train-test split
@@ -22,8 +26,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # Random Forest
 model = RandomForestRegressor(
-    n_estimators=50,
-    max_depth=10,
+    n_estimators=100,
+    max_depth=15,
     random_state=42
 )
 model.fit(X_train, y_train)
@@ -39,11 +43,11 @@ print(f"R2 Score: {r2}")
 joblib.dump(model, "output/model/model.pkl")
 
 results = {
-    "experiment": "EXP-03",
+    "experiment": "EXP-04",
     "model": "Random Forest",
-    "n_estimators": 50,
-    "max_depth": 10,
-    "features": "All",
+    "n_estimators": 100,
+    "max_depth": 15,
+    "features": "Selected (correlation-based)",
     "preprocessing": "None",
     "MSE": mse,
     "R2_Score": r2
