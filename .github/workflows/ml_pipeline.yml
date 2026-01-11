@@ -1,0 +1,39 @@
+name: ML Training Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run training
+      run: python train.py
+
+    - name: Add metrics to Job Summary
+      run: |
+        echo "## ML Experiment Results" >> $GITHUB_STEP_SUMMARY
+        echo "**Name:** Vaishnav Nigade" >> $GITHUB_STEP_SUMMARY
+        echo "**Roll No:** 2022bcd0045" >> $GITHUB_STEP_SUMMARY
+        cat output/evaluation/results.json >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: lab2-artifacts
+        path: output/
